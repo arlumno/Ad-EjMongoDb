@@ -1,4 +1,4 @@
-package MongoJava_ejemplo;
+package ad.ejmongodb;
 
 import java.util.ArrayList;
 

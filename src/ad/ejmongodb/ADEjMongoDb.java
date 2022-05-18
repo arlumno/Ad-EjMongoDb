@@ -4,6 +4,20 @@
  */
 package ad.ejmongodb;
 
+import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+
 /**
  *
  * @author a20armandocb
@@ -14,7 +28,67 @@ public class ADEjMongoDb {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+//        MongoClient mongoC = new MongoClient();
+//        MongoClient mongoC = new MongoClient("localhost",27017);
+//        MongoDatabase mongoDB = mongoC.getDatabase("mibasededatos");
+//        DBCollection collection = (DBCollection) mongoDB.getCollection("trabajadores");
+
+        CodecRegistry pojoCodecRegistry = CodecRegistries.fromRegistries(MongoClient.getDefaultCodecRegistry(), CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+        MongoClient mongoC = new MongoClient("localhost", MongoClientOptions.builder().codecRegistry(pojoCodecRegistry).build());
+        MongoDatabase db = mongoC.getDatabase("centroeducativo");
+
+//        MongoCollection<Document> coleccion = db.getCollection("alumnos"); //obtenemos la coleccion
+//
+//        List<Document> consulta = coleccion.find().into(new ArrayList<Document>());
+//        System.out.println("total: " + consulta.size());
+//        for (int i = 0; i < consulta.size(); i++) {//mostramos los documentos
+//            System.out.println(" ---- " + consulta.get(i).toString());
+//        }
+        MongoCursor<String> cursor = db.listCollectionNames().iterator();
+        while (cursor.hasNext()) {
+            String doc = cursor.next();
+            System.out.println(doc);
+        }
+
+        MongoCollection<FutbolistaNew> collectionCodecRegistry = db.getCollection("futbolistas", FutbolistaNew.class);
+        collectionCodecRegistry.drop();
+        FutbolistaNew f01 = new FutbolistaNew("armando", "madarona", 25, new ArrayList<String>(Arrays.asList("uno","dos")), false, 160);
+        FutbolistaNew f02 = new FutbolistaNew("Paco", "Castro", 85, new ArrayList<String>(Arrays.asList("uno","dos")), true, 160);
+        
+        collectionCodecRegistry.insertOne(f01);
+        collectionCodecRegistry.insertOne(f02);
+        
+        
+        FutbolistaNew f03 = new FutbolistaNew("Pedro", "Perez", 45, new ArrayList<String>(Arrays.asList("uno","dos")), true, 160);
+        FutbolistaNew f04 = new FutbolistaNew("Roberto", "Merino", 65, new ArrayList<String>(Arrays.asList("uno","dos")),true, 160);
+        FutbolistaNew f05 = new FutbolistaNew("Pica", "Piedra", 85, new ArrayList<String>(Arrays.asList("uno","dos")),false, 160);
+        
+        ArrayList<FutbolistaNew> listadoFutbolistas = new  ArrayList<FutbolistaNew>();
+        
+        listadoFutbolistas.add(f03);
+        listadoFutbolistas.add(f04);        
+        listadoFutbolistas.add(f05);        
+        collectionCodecRegistry.insertMany(listadoFutbolistas);
+        
+        
+//        System.out.println("hi");
+//        FutbolistaNew f02 = collectionCodecRegistry.find().first();
+//        System.out.println(f02.toString());
+        ArrayList<FutbolistaNew> gente = collectionCodecRegistry.find().into(new ArrayList<FutbolistaNew>());
+        System.out.println("Cantidad: " + gente.size());
+        for(FutbolistaNew f: gente){
+            System.out.println(f.toString());
+        }
+
+        Document consulta1 = new Document("_id","").append("$count", "_id");
+        List <Document> lista2 = Arrays.asList(consulta1);
+        MongoCursor<FutbolistaNew> cursor2 = collectionCodecRegistry.aggregate(lista2).iterator();
+
+          
+          
+          
+          
+        System.out.println("fin");
     }
-    
+
 }
