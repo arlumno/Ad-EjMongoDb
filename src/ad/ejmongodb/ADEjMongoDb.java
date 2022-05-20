@@ -10,6 +10,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
 
 /**
  *
@@ -71,18 +73,38 @@ public class ADEjMongoDb {
         collectionCodecRegistry.insertMany(listadoFutbolistas);
         
         
-//        System.out.println("hi");
-//        FutbolistaNew f02 = collectionCodecRegistry.find().first();
-//        System.out.println(f02.toString());
-        ArrayList<FutbolistaNew> gente = collectionCodecRegistry.find().into(new ArrayList<FutbolistaNew>());
-        System.out.println("Cantidad: " + gente.size());
-        for(FutbolistaNew f: gente){
+
+        FutbolistaNew f12 = collectionCodecRegistry.find().first();
+        System.out.println("primero: " + f12.toString());
+        System.out.println("Borrando");
+        collectionCodecRegistry.deleteOne(new Document("_id",f12.getId()));        
+        f12 = collectionCodecRegistry.find().first();
+        System.out.println("primero: " + f12.toString());
+        
+        System.out.println("modificando");
+        f12.setApellidos("XXXXXXXXXXXXXX");
+        
+        Document findDocument1 = new Document("_id",f12.getId());     
+        Document updateDocument1 = new Document("$set", new Document("apellidos", f12.getApellidos()));
+        collectionCodecRegistry.updateOne(findDocument1,updateDocument1);    
+        
+        
+            
+//        ArrayList<FutbolistaNew> gente = collectionCodecRegistry.find().into(new ArrayList<FutbolistaNew>());
+//        System.out.println("Cantidad: " + gente.size());
+//        for(FutbolistaNew f: gente){
+//            System.out.println(f.toString());
+//        }
+
+        MongoCursor<FutbolistaNew> cursor1 = collectionCodecRegistry.find(Filters.gt("edad", 80)).iterator();
+        while(cursor1.hasNext()) {
+            FutbolistaNew f = cursor1.next();
             System.out.println(f.toString());
         }
 
-        Document consulta1 = new Document("_id","").append("$count", "_id");
-        List <Document> lista2 = Arrays.asList(consulta1);
-        MongoCursor<FutbolistaNew> cursor2 = collectionCodecRegistry.aggregate(lista2).iterator();
+//        Document consulta1 = new Document("_id","").append("$count", "_id");
+//        List <Document> lista2 = Arrays.asList(consulta1);
+//        MongoCursor<FutbolistaNew> cursor2 = collectionCodecRegistry.aggregate(lista2).iterator();
 
           
           
